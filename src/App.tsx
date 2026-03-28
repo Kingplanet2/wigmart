@@ -7,6 +7,8 @@ import CheckoutPage from "./pages/CheckoutPage";
 import WishlistPage from "./pages/WishlistPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import SupportPage from "./pages/SupportPage";
+import AccountPage from "./pages/AccountPage";
+import TryOnPage from "./pages/TryOnPage";
 
 export default function App() {
   return (
@@ -19,6 +21,8 @@ export default function App() {
       <Route path="/wishlist" element={<WishlistPage />} />
       <Route path="/search" element={<SearchResultsPage />} />
       <Route path="/support" element={<SupportPage />} />
+      <Route path="/account" element={<AccountPage />} />
+      <Route path="/tryon" element={<TryOnPage />} />
     </Routes>
   );
 }
