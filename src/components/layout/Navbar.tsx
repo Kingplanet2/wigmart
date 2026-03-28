@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Heart, Menu, X, Search, MessageCircle } from "lucide-react";
-import { useCartStore } from "../../store/cartStore";
+import { Heart, Menu, X, Search, MessageCircle } from "lucide-react";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { searchProducts } from "../../data/products";
 import type { Product } from "../../types";
@@ -14,7 +13,6 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const cartCount = useCartStore((s) => s.totalItems());
   const wishlistCount = useWishlistStore((s) => s.items.length);
   const navigate = useNavigate();
 
@@ -133,15 +131,7 @@ export default function Navbar() {
               )}
             </Link>
 
-            <Link to="/cart" className="p-2 rounded-full hover:bg-neutral-100 transition-colors relative">
-              <ShoppingCart className="w-5 h-5 text-neutral-600" />
-              {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-brand-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-
+            
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2 rounded-full hover:bg-neutral-100 transition-colors"

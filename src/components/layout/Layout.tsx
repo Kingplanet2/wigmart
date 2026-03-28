@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Navbar from "./Navbar";
 import BackToTop from "../ui/BackToTop";
-import FloatingCart from "../ui/FloatingCart";
+import BottomNav from "./BottomNav";
 import BackButton from "../ui/BackButton";
 
 interface LayoutProps {
@@ -12,7 +12,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 pt-[104px]">
+      <main className="flex-1 pt-[104px] pb-20 md:pb-0">
         {children}
       </main>
 
@@ -116,7 +116,7 @@ export default function Layout({ children }: LayoutProps) {
 
       <BackButton />
       <BackToTop />
-      <FloatingCart />
+      <BottomNav />
     </div>
   );
 }
