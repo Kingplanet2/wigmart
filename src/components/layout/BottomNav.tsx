@@ -1,15 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Sparkles, MessageCircle, User } from "lucide-react";
+import { Home, Sparkles, ShoppingCart, MessageCircle, User } from "lucide-react";
+import { useCartStore } from "../../store/cartStore";
 
 const navItems = [
   { label: "Home", href: "/", icon: Home },
   { label: "Try On", href: "/tryon", icon: Sparkles },
+  { label: "Cart", href: "/cart", icon: ShoppingCart },
   { label: "Chat", href: "/support", icon: MessageCircle },
   { label: "Account", href: "/account", icon: User },
 ];
 
 export default function BottomNav() {
   const location = useLocation();
+  const cartCount = useCartStore((s) => s.totalItems());
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
@@ -27,12 +30,13 @@ export default function BottomNav() {
         <div className="flex items-center justify-around px-2 py-1">
           {navItems.map(({ label, href, icon: Icon }) => {
             const active = isActive(href);
+            const isCart = label === "Cart";
 
             return (
               <Link
                 key={label}
                 to={href}
-                className="flex flex-col items-center justify-center gap-0.5 py-2 px-4 relative"
+                className="flex flex-col items-center justify-center gap-0.5 py-2 px-3 relative"
               >
                 {/* Active top indicator line */}
                 {active && (
@@ -41,7 +45,7 @@ export default function BottomNav() {
 
                 {/* Icon */}
                 <div
-                  className={`flex items-center justify-center w-6 h-6 transition-all duration-200 ${
+                  className={`relative flex items-center justify-center w-6 h-6 transition-all duration-200 ${
                     active ? "-translate-y-0.5" : ""
                   }`}
                 >
@@ -52,6 +56,13 @@ export default function BottomNav() {
                         : "text-neutral-400"
                     }`}
                   />
+
+                  {/* Cart badge */}
+                  {isCart && cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 w-4 h-4 bg-brand-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                      {cartCount > 9 ? "9+" : cartCount}
+                    </span>
+                  )}
                 </div>
 
                 {/* Label */}
