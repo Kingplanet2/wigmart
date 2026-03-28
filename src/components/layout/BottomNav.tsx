@@ -19,16 +19,12 @@ export default function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
       <div
-        className="mx-3 mb-4 rounded-3xl px-4 py-3"
+        className="bg-white border-t border-neutral-100"
         style={{
-          background: "rgba(255, 255, 255, 0.85)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: "1px solid rgba(255, 255, 255, 0.7)",
-          boxShadow: "0 -2px 20px rgba(0,0,0,0.06), 0 20px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.9)",
+          boxShadow: "0 -4px 20px rgba(0,0,0,0.06)",
         }}
       >
-        <div className="flex items-center justify-around">
+        <div className="flex items-center justify-around px-2 py-1">
           {navItems.map(({ label, href, icon: Icon }) => {
             const active = isActive(href);
 
@@ -36,59 +32,38 @@ export default function BottomNav() {
               <Link
                 key={label}
                 to={href}
-                className="flex flex-col items-center gap-1.5 relative"
-                style={{ minWidth: 60 }}
+                className="flex flex-col items-center justify-center gap-0.5 py-2 px-4 relative"
               >
-                {/* 3D floating icon container */}
+                {/* Active top indicator line */}
+                {active && (
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-brand-500 rounded-full" />
+                )}
+
+                {/* Icon */}
                 <div
-                  className="relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300"
-                  style={active ? {
-                    background: "linear-gradient(135deg, #e3a03c, #d4831e)",
-                    boxShadow: "0 8px 20px rgba(212, 131, 30, 0.5), 0 4px 8px rgba(212, 131, 30, 0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
-                    transform: "translateY(-10px) scale(1.08)",
-                  } : {
-                    background: "rgba(0,0,0,0.04)",
-                    transform: "translateY(0px) scale(1)",
-                    boxShadow: "none",
-                  }}
+                  className={`flex items-center justify-center w-6 h-6 transition-all duration-200 ${
+                    active ? "-translate-y-0.5" : ""
+                  }`}
                 >
                   <Icon
-                    className={`w-5 h-5 transition-all duration-300 ${
-                      active ? "text-white" : "text-neutral-400"
+                    className={`w-5 h-5 transition-all duration-200 ${
+                      active
+                        ? "text-brand-500 scale-110"
+                        : "text-neutral-400"
                     }`}
                   />
-
-                  {/* Glow ring when active */}
-                  {active && (
-                    <div
-                      className="absolute inset-0 rounded-2xl"
-                      style={{
-                        background: "linear-gradient(135deg, rgba(255,255,255,0.2), transparent)",
-                      }}
-                    />
-                  )}
                 </div>
 
                 {/* Label */}
                 <span
-                  className="text-xs font-semibold transition-all duration-300"
-                  style={{
-                    color: active ? "#d4831e" : "#9ca3af",
-                    transform: active ? "translateY(-4px)" : "translateY(0)",
-                  }}
+                  className={`text-xs transition-all duration-200 ${
+                    active
+                      ? "text-brand-500 font-semibold"
+                      : "text-neutral-400 font-medium"
+                  }`}
                 >
                   {label}
                 </span>
-
-                {/* Active dot */}
-                {active && (
-                  <div
-                    className="absolute -bottom-1 w-1 h-1 rounded-full bg-brand-500"
-                    style={{
-                      boxShadow: "0 0 6px rgba(212, 131, 30, 0.8)",
-                    }}
-                  />
-                )}
               </Link>
             );
           })}
