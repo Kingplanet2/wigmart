@@ -63,7 +63,9 @@ export default function TryOnPage() {
             });
             deepARRef.current = deepAR;
           } catch {
-            setError("Could not start AR. Please allow camera access and try again.");
+            setError(
+                "Camera blocked. On iPhone: go to Settings → Safari → Camera → Allow. Then refresh this page."
+                 );
             setIsLoading(false);
           }
         };
