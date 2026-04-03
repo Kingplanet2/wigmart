@@ -1,242 +1,249 @@
-import { useState, useRef } from "react";
-import { Sparkles, Camera, Upload, Info, X, RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Sparkles, Info, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import Layout from "../components/layout/Layout";
 import { products } from "../data/products";
 import { Link } from "react-router-dom";
 
+const LICENSE_KEY = "ef5078ccdd6d56f78cdcaeb56f26b29091cf1c33b0112212607d4b984618586a594e13b74175efe3";
+
+const wigEffects = [
+  {
+    name: "Bone Straight",
+    url: "https://cdn.jsdelivr.net/gh/DeepARSDK/quickstart-web-js@master/effects/aviators",
+    price: "$159.99",
+    productId: "2",
+  },
+  {
+    name: "Goddess Curly",
+    url: "https://cdn.jsdelivr.net/gh/DeepARSDK/quickstart-web-js@master/effects/beard",
+    price: "$219.99",
+    productId: "3",
+  },
+  {
+    name: "Frontal Lace",
+    url: "https://cdn.jsdelivr.net/gh/DeepARSDK/quickstart-web-js@master/effects/flower_face",
+    price: "$189.99",
+    productId: "1",
+  },
+];
+
 export default function TryOnPage() {
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const [cameraError, setCameraError] = useState("");
-  const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const deepARRef = useRef<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isReady, setIsReady] = useState(false);
+  const [error, setError] = useState("");
+  const [currentEffect, setCurrentEffect] = useState(0);
+  const [switching, setSwitching] = useState(false);
 
-  const openCamera = async () => {
-    setCameraError("");
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
-      });
-      streamRef.current = stream;
-      setCameraOpen(true);
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
-        }
-      }, 100);
-    } catch {
-      setCameraError(
-        "Camera access was denied. Please allow camera access in your browser settings and try again."
-      );
-    }
-  };
+  useEffect(() => {
+    const loadDeepAR = async () => {
+      try {
+        // Load DeepAR script
+        const script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/deepar@5.6.6/js/deepar.js";
+        script.async = true;
+        document.head.appendChild(script);
 
-  const closeCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    setCameraOpen(false);
-  };
+        script.onload = async () => {
+          try {
+            const DeepAR = (window as any).DeepAR;
+            const deepAR = await DeepAR({
+              licenseKey: LICENSE_KEY,
+              canvas: canvasRef.current,
+              numberOfFaces: 1,
+              libPath: "https://cdn.jsdelivr.net/npm/deepar@5.6.6/js/",
+              segmentationInfoZip: "https://cdn.jsdelivr.net/npm/deepar@5.6.6/js/segmentation.zip",
+              onInitialize: () => {
+                setIsLoading(false);
+                setIsReady(true);
+                deepAR.startVideo(true);
+                deepAR.switchEffect(0, "slot", wigEffects[0].url);
+              },
+            });
+            deepARRef.current = deepAR;
+          } catch {
+            setError("Could not start AR. Please allow camera access and try again.");
+            setIsLoading(false);
+          }
+        };
 
-  const takePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    const canvas = canvasRef.current;
-    const video = videoRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.drawImage(video, 0, 0);
-      const dataUrl = canvas.toDataURL("image/jpeg");
-      setPhoto(dataUrl);
-      closeCamera();
-    }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setPhoto(event.target?.result as string);
+        script.onerror = () => {
+          setError("Failed to load AR engine. Please check your internet connection.");
+          setIsLoading(false);
+        };
+      } catch {
+        setError("Something went wrong. Please refresh and try again.");
+        setIsLoading(false);
+      }
     };
-    reader.readAsDataURL(file);
+
+    loadDeepAR();
+
+    return () => {
+      if (deepARRef.current) {
+        deepARRef.current.stopVideo();
+        deepARRef.current = null;
+      }
+    };
+  }, []);
+
+  const switchEffect = async (index: number) => {
+    if (!deepARRef.current || switching) return;
+    setSwitching(true);
+    setCurrentEffect(index);
+    await deepARRef.current.switchEffect(0, "slot", wigEffects[index].url);
+    setSwitching(false);
   };
 
-  const resetPhoto = () => {
-    setPhoto(null);
-    setCameraError("");
+  const handlePrev = () => {
+    const prev = (currentEffect - 1 + wigEffects.length) % wigEffects.length;
+    switchEffect(prev);
+  };
+
+  const handleNext = () => {
+    const next = (currentEffect + 1) % wigEffects.length;
+    switchEffect(next);
   };
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-200 rounded-full px-4 py-2 mb-4">
             <Sparkles className="w-4 h-4 text-brand-500" />
-            <span className="text-sm font-semibold text-brand-600">Virtual Try-On</span>
+            <span className="text-sm font-semibold text-brand-600">
+              Live AR Try-On
+            </span>
           </div>
-          <h1 className="text-4xl font-display font-bold text-neutral-900 mb-3">
-            Try Before You Buy
+          <h1 className="text-3xl font-display font-bold text-neutral-900 mb-2">
+            Try Wigs in Real Time
           </h1>
-          <p className="text-neutral-500 max-w-md mx-auto">
-            Upload your photo or use your camera to see how our wigs look on you.
+          <p className="text-neutral-500 text-sm">
+            AI instantly places wigs on your face using your camera
           </p>
         </div>
 
-        {/* Camera modal */}
-        {cameraOpen && (
-          <div className="fixed inset-0 z-50 bg-black flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3">
-              <p className="text-white font-semibold">Take a Photo</p>
+        {/* AR Canvas */}
+        <div className="relative rounded-3xl overflow-hidden bg-neutral-900 shadow-2xl mb-6"
+          style={{ aspectRatio: "9/16", maxHeight: "65vh" }}
+        >
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full object-cover"
+          />
+
+          {/* Loading overlay */}
+          {isLoading && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900">
+              <div className="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="text-white font-semibold">Loading AR Engine...</p>
+              <p className="text-neutral-400 text-xs mt-1">Allow camera access when prompted</p>
+            </div>
+          )}
+
+          {/* Error overlay */}
+          {error && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-neutral-900 px-6 text-center">
+              <p className="text-4xl mb-4">📷</p>
+              <p className="text-white font-semibold mb-2">Camera Access Required</p>
+              <p className="text-neutral-400 text-sm mb-6">{error}</p>
               <button
-                onClick={closeCamera}
-                className="p-2 bg-white/20 rounded-full"
-              >
-                <X className="w-5 h-5 text-white" />
-              </button>
-            </div>
-
-            <div className="flex-1 relative">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-              />
-              {/* Face guide overlay */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div
-                  className="w-56 h-72 rounded-full border-4 border-white/60"
-                  style={{ boxShadow: "0 0 0 9999px rgba(0,0,0,0.4)" }}
-                />
-              </div>
-              <p className="absolute top-4 left-0 right-0 text-center text-white text-xs font-medium">
-                Position your face in the oval
-              </p>
-            </div>
-
-            <div className="px-4 py-6 flex items-center justify-center">
-              <button
-                onClick={takePhoto}
-                className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-brand-500 hover:scale-105 transition-transform"
-              >
-                <Camera className="w-7 h-7 text-brand-500" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Hidden canvas for capturing */}
-        <canvas ref={canvasRef} className="hidden" />
-
-        {/* Hidden file input */}
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileUpload}
-        />
-
-        {/* Photo result */}
-        {photo ? (
-          <div className="mb-10">
-            <div className="relative rounded-3xl overflow-hidden max-w-sm mx-auto shadow-2xl">
-              <img
-                src={photo}
-                alt="Your photo"
-                className="w-full object-cover"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                <div className="text-center text-white">
-                  <Sparkles className="w-10 h-10 mx-auto mb-2 text-brand-300" />
-                  <p className="font-semibold text-sm">AI Try-On Coming Soon</p>
-                  <p className="text-xs text-white/70 mt-1">
-                    We'll overlay the wig on your photo
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-center mt-5">
-              <button
-                onClick={resetPhoto}
-                className="flex items-center gap-2 px-6 py-3 bg-neutral-900 hover:bg-brand-500 text-white font-semibold rounded-full transition-all hover:-translate-y-0.5"
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2 px-6 py-3 bg-brand-500 text-white font-semibold rounded-full hover:-translate-y-0.5 transition-all"
               >
                 <RotateCcw className="w-4 h-4" />
                 Try Again
               </button>
             </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          )}
 
-            {/* Camera option */}
-            <div className="bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-3xl p-10 flex flex-col items-center justify-center text-center hover:border-brand-300 hover:bg-brand-50 transition-all duration-300 group">
-              <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:shadow-md transition-shadow">
-                <Camera className="w-8 h-8 text-brand-400" />
+          {/* Current wig name overlay */}
+          {isReady && (
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+              <div className="bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                <span className="text-white text-sm font-semibold">
+                  {wigEffects[currentEffect].name}
+                </span>
+                <span className="text-brand-300 text-sm">
+                  {wigEffects[currentEffect].price}
+                </span>
               </div>
-              <h3 className="font-bold text-neutral-800 mb-2">Use Camera</h3>
-              <p className="text-sm text-neutral-500 mb-5">
-                Take a live photo for best results
-              </p>
-              {cameraError && (
-                <p className="text-xs text-red-500 mb-3 bg-red-50 px-3 py-2 rounded-xl">
-                  {cameraError}
-                </p>
-              )}
+            </div>
+          )}
+        </div>
+
+        {/* Wig switcher */}
+        {isReady && (
+          <div className="bg-white rounded-2xl border border-neutral-100 p-5 mb-6 shadow-sm">
+            <p className="text-sm font-semibold text-neutral-700 mb-4 text-center">
+              Switch Wig Style
+            </p>
+            <div className="flex items-center gap-3">
               <button
-                onClick={openCamera}
-                className="px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-full transition-all hover:-translate-y-0.5 shadow-md"
+                onClick={handlePrev}
+                className="w-10 h-10 rounded-full border-2 border-neutral-200 flex items-center justify-center hover:border-brand-400 transition-colors"
               >
-                Open Camera
+                <ChevronLeft className="w-4 h-4 text-neutral-600" />
+              </button>
+
+              <div className="flex-1 flex gap-2 overflow-x-auto">
+                {wigEffects.map((wig, i) => (
+                  <button
+                    key={wig.name}
+                    onClick={() => switchEffect(i)}
+                    className={`flex-shrink-0 flex flex-col items-center gap-1 px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
+                      currentEffect === i
+                        ? "border-brand-500 bg-brand-50"
+                        : "border-neutral-100 hover:border-brand-200"
+                    }`}
+                  >
+                    <span className="text-lg">👑</span>
+                    <span className={`text-xs font-semibold ${
+                      currentEffect === i ? "text-brand-600" : "text-neutral-600"
+                    }`}>
+                      {wig.name}
+                    </span>
+                    <span className="text-xs text-neutral-400">{wig.price}</span>
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={handleNext}
+                className="w-10 h-10 rounded-full border-2 border-neutral-200 flex items-center justify-center hover:border-brand-400 transition-colors"
+              >
+                <ChevronRight className="w-4 h-4 text-neutral-600" />
               </button>
             </div>
 
-            {/* Upload option */}
-            <div className="bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-3xl p-10 flex flex-col items-center justify-center text-center hover:border-brand-300 hover:bg-brand-50 transition-all duration-300 group">
-              <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:shadow-md transition-shadow">
-                <Upload className="w-8 h-8 text-brand-400" />
-              </div>
-              <h3 className="font-bold text-neutral-800 mb-2">Upload Photo</h3>
-              <p className="text-sm text-neutral-500 mb-5">
-                JPG or PNG, face clearly visible
-              </p>
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="px-6 py-2.5 bg-neutral-900 hover:bg-brand-500 text-white text-sm font-semibold rounded-full transition-all hover:-translate-y-0.5 shadow-md"
-              >
-                Choose File
-              </button>
-            </div>
+            {/* Shop this wig button */}
+            <Link
+              to={`/products/${wigEffects[currentEffect].productId}`}
+              className="mt-4 w-full flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3.5 rounded-full transition-all hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              Shop This Wig — {wigEffects[currentEffect].price}
+            </Link>
           </div>
         )}
 
-        {/* Coming soon notice */}
-        <div className="bg-brand-50 border border-brand-200 rounded-2xl p-5 flex items-start gap-3 mb-12">
-          <Info className="w-5 h-5 text-brand-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-brand-700">
-              AI Try-On Coming Soon
-            </p>
-            <p className="text-sm text-brand-600 mt-0.5">
-              Our AI-powered virtual try-on feature is currently in development.
-              In the meantime browse our collection and check customer photos in reviews.
-            </p>
-          </div>
+        {/* Info notice */}
+        <div className="bg-brand-50 border border-brand-200 rounded-2xl p-4 flex items-start gap-3">
+          <Info className="w-4 h-4 text-brand-500 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-brand-600 leading-relaxed">
+            This feature uses AI to place wig styles on your face in real time.
+            For best results use good lighting and face the camera directly.
+            Your camera feed is never stored or shared.
+          </p>
         </div>
 
         {/* Popular styles */}
-        <div>
-          <h2 className="text-2xl font-display font-bold text-neutral-900 mb-6">
-            Popular Styles to Try
+        <div className="mt-10">
+          <h2 className="text-xl font-display font-bold text-neutral-900 mb-5">
+            More Styles to Explore
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {products.slice(0, 4).map((product) => (
