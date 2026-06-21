@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import Navbar from "./Navbar";
 import BackToTop from "../ui/BackToTop";
 import BottomNav from "./BottomNav";
-import BackButton from "../ui/BackButton";
 
 interface LayoutProps {
   children: ReactNode;
@@ -114,7 +113,6 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </footer>
 
-      <BackButton />
       <BackToTop />
       <BottomNav />
     </div>

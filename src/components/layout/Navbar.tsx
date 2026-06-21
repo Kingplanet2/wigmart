@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Heart, Menu, X, Search, MessageCircle } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Heart, Menu, X, Search, MessageCircle, ArrowLeft } from "lucide-react";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { searchProducts } from "../../data/products";
 import type { Product } from "../../types";
@@ -17,6 +17,8 @@ export default function Navbar() {
 
   const wishlistCount = useWishlistStore((s) => s.items.length);
   const navigate = useNavigate();
+  const location = useLocation();
+  const showBack = location.pathname !== "/";
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -68,15 +70,26 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
 
-          {/* Logo */}
-          <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center shadow-md">
-              <span className="text-white text-xs font-bold">W</span>
-            </div>
-            <span className="text-2xl font-display font-bold text-neutral-900 tracking-tight">
-              Wig<span className="text-brand-500">Mart</span>
-            </span>
-          </Link>
+          {/* Logo + back arrow */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {showBack && (
+              <button
+                onClick={() => navigate(-1)}
+                aria-label="Go back"
+                className="p-2 -ml-2 rounded-full hover:bg-neutral-100 transition-colors flex-shrink-0"
+              >
+                <ArrowLeft className="w-5 h-5 text-neutral-700" />
+              </button>
+            )}
+            <Link to="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center shadow-md">
+                <span className="text-white text-xs font-bold">W</span>
+              </div>
+              <span className="text-2xl font-display font-bold text-neutral-900 tracking-tight hidden sm:inline">
+                Wig<span className="text-brand-500">Mart</span>
+              </span>
+            </Link>
+          </div>
 
           {/* Desktop Nav links */}
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-neutral-600">
