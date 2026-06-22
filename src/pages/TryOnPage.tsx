@@ -5,6 +5,7 @@ import { products } from "../data/products";
 import { Link } from "react-router-dom";
 
 const LICENSE_KEY = import.meta.env.VITE_DEEPAR_LICENSE_KEY;
+console.log("DeepAR key present:", !!LICENSE_KEY, "length:", LICENSE_KEY?.length);
 
 const wigEffects = [
   {
