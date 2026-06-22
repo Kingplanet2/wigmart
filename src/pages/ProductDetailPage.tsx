@@ -1,17 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ShoppingCart, Heart, Star, Shield, Truck, RotateCcw } from "lucide-react";
 import Layout from "../components/layout/Layout";
 import ProductCard from "../components/product/ProductCard";
 import StarRating from "../components/ui/StarRating";
 import Badge from "../components/ui/Badge";
-import { products } from "../data/products";
+import { getProductById, getRelatedProducts } from "../lib/queries";
 import { useCartStore } from "../store/cartStore";
 import { useWishlistStore } from "../store/wishlistStore";
+import type { Product } from "../types";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
-  const product = products.find((p) => p.id === id);
+
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedLength, setSelectedLength] = useState("");
@@ -20,6 +25,45 @@ export default function ProductDetailPage() {
 
   const addItem = useCartStore((s) => s.addItem);
   const { toggle, isWishlisted } = useWishlistStore();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadProduct() {
+      if (!id) return;
+      setIsLoading(true);
+
+      const fetchedProduct = await getProductById(id);
+
+      if (!isMounted) return;
+
+      setProduct(fetchedProduct);
+      setSelectedImage(0);
+      setSelectedColor("");
+      setSelectedLength("");
+      setQuantity(1);
+
+      if (fetchedProduct) {
+        const relatedProducts = await getRelatedProducts(fetchedProduct.category, fetchedProduct.id);
+        if (isMounted) setRelated(relatedProducts);
+      }
+
+      setIsLoading(false);
+    }
+
+    loadProduct();
+    return () => { isMounted = false; };
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto px-4 py-20 text-center text-neutral-400">
+          Loading product...
+        </div>
+      </Layout>
+    );
+  }
 
   if (!product) {
     return (
@@ -34,10 +78,6 @@ export default function ProductDetailPage() {
       </Layout>
     );
   }
-
-  const related = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
 
   const reviews = [
     { id: "1", author: "Amara J.", rating: 5, date: "March 2026", comment: "Absolutely love this wig! The quality is incredible and it looks so natural. I've gotten so many compliments.", verified: true },
@@ -64,25 +104,29 @@ export default function ProductDetailPage() {
           {/* Images */}
           <div className="space-y-4">
             <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-neutral-100">
-              <img
-                src={product.images[selectedImage]}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
+              {product.images[selectedImage] && (
+                <img
+                  src={product.images[selectedImage]}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
-            <div className="flex gap-3">
-              {product.images.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedImage(i)}
-                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                    selectedImage === i ? "border-brand-500" : "border-neutral-200"
-                  }`}
-                >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
+            {product.images.length > 0 && (
+              <div className="flex gap-3">
+                {product.images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImage(i)}
+                    className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                      selectedImage === i ? "border-brand-500" : "border-neutral-200"
+                    }`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product info */}

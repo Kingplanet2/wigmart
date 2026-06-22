@@ -14,6 +14,37 @@ export async function getAllProducts(): Promise<Product[]> {
   return (data ?? []).map(mapRowToProduct);
 }
 
+export async function getProductById(id: string): Promise<Product | null> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) {
+    console.error("Error fetching product:", error?.message);
+    return null;
+  }
+
+  return mapRowToProduct(data);
+}
+
+export async function getRelatedProducts(category: string, excludeId: string): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("category", category)
+    .neq("id", excludeId)
+    .limit(4);
+
+  if (error) {
+    console.error("Error fetching related products:", error.message);
+    return [];
+  }
+
+  return (data ?? []).map(mapRowToProduct);
+}
+
 // Converts a raw Supabase row (snake_case) into our Product type (camelCase)
 function mapRowToProduct(row: any): Product {
   return {
