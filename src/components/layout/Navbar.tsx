@@ -60,7 +60,7 @@ export default function Navbar() {
     >
       {/* Announcement bar */}
       <div className="bg-neutral-900 text-white text-center py-2 text-xs tracking-widest font-medium">
-        FREE SHIPPING ON ORDERS OVER $150 | USE CODE{" "}
+        FREE SHIPPING ON ORDERS OVER ₦150 | USE CODE{" "}
         <span className="text-brand-300">WIGMART10</span> FOR 10% OFF
       </div>
 
