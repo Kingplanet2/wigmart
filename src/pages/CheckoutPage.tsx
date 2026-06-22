@@ -272,7 +272,7 @@ export default function CheckoutPage() {
                       )}
                     </div>
                     <p className="text-sm font-semibold text-neutral-900 flex-shrink-0">
-                      ${(item.product.price * item.quantity).toFixed(2)}
+                      ₦{(item.product.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}
@@ -280,21 +280,21 @@ export default function CheckoutPage() {
                 <div className="border-t border-neutral-100 pt-3 space-y-2 text-sm">
                   <div className="flex justify-between text-neutral-600">
                     <span>Subtotal</span>
-                    <span>${totalPrice().toFixed(2)}</span>
+                    <span>₦{totalPrice().toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-neutral-600">
                     <span>Shipping</span>
                     <span className={shipping === 0 ? "text-emerald-600 font-medium" : ""}>
-                      {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
+                      {shipping === 0 ? "FREE" : `₦${shipping.toFixed(2)}`}
                     </span>
                   </div>
                   <div className="flex justify-between text-neutral-600">
                     <span>Tax</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>₦{tax.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-base text-neutral-900 pt-2 border-t border-neutral-100">
                     <span>Total</span>
-                    <span>${orderTotal.toFixed(2)}</span>
+                    <span>₦{orderTotal.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -303,7 +303,7 @@ export default function CheckoutPage() {
                   className="w-full flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-semibold py-4 rounded-full transition-all hover:-translate-y-0.5 hover:shadow-lg mt-2"
                 >
                   <Lock className="w-4 h-4" />
-                  Place Order — ${orderTotal.toFixed(2)}
+                  Place Order — ₦{orderTotal.toFixed(2)}
                 </button>
 
                 <p className="text-center text-xs text-neutral-400 mt-3">

@@ -11,8 +11,6 @@ export default function Navbar() {
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [currency, setCurrency] = useState("USD");
-  const currencies = ["USD", "NGN", "GBP", "GHS"];
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const wishlistCount = useWishlistStore((s) => s.items.length);
@@ -100,19 +98,6 @@ export default function Navbar() {
             <Link to="/products?category=braided" className="hover:text-brand-500 transition-colors">Braided</Link>
             <Link to="/support" className="hover:text-brand-500 transition-colors">Support</Link>
           </nav>
-
-          {/* Currency toggle — desktop */}
-          <div className="hidden md:flex items-center">
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="text-xs font-semibold text-neutral-600 bg-neutral-100 border-none rounded-full px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-300 cursor-pointer"
-            >
-              {currencies.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
 
           {/* Search bar — desktop */}
           <div className="hidden md:flex flex-1 max-w-sm relative">
@@ -215,26 +200,6 @@ export default function Navbar() {
           <Link to="/products?category=curly" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-medium text-neutral-700 hover:text-brand-500 transition-colors">Curly</Link>
           <Link to="/products?category=braided" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-medium text-neutral-700 hover:text-brand-500 transition-colors">Braided</Link>
           <Link to="/support" onClick={() => setIsMenuOpen(false)} className="block py-2 text-sm font-medium text-neutral-700 hover:text-brand-500 transition-colors">Support</Link>
-
-          {/* Mobile currency toggle */}
-          <div className="pt-3 border-t border-neutral-100">
-            <p className="text-xs text-neutral-400 mb-2 font-medium uppercase tracking-wider">Currency</p>
-            <div className="flex gap-2 flex-wrap">
-              {currencies.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setCurrency(c)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                    currency === c
-                      ? "bg-brand-500 text-white"
-                      : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
 
         </div>
       )}

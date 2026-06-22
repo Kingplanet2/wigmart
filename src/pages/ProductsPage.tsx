@@ -4,7 +4,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import Layout from "../components/layout/Layout";
 import ProductCard from "../components/product/ProductCard";
 import ProductFilter from "../components/product/ProductFilter";
-import { products } from "../data/products";
+import { getAllProducts } from "../lib/queries";
 import type { Product } from "../types";
 
 const sortOptions = [
@@ -22,10 +22,34 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState("featured");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [showMobileFilter, setShowMobileFilter] = useState(false);
-  const [filtered, setFiltered] = useState<Product[]>(products);
 
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [filtered, setFiltered] = useState<Product[]>([]);
+
+  // Fetch from Supabase once, when the page first loads
   useEffect(() => {
-    let result = [...products];
+    let isMounted = true;
+
+    async function loadProducts() {
+      setIsLoading(true);
+      setLoadError(false);
+      const data = await getAllProducts();
+      if (isMounted) {
+        setAllProducts(data);
+        setIsLoading(false);
+        if (data.length === 0) setLoadError(true);
+      }
+    }
+
+    loadProducts();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Apply filters/sort/search whenever inputs OR the fetched data change
+  useEffect(() => {
+    let result = [...allProducts];
 
     if (selectedCategory) {
       result = result.filter((p) => p.category === selectedCategory);
@@ -50,7 +74,7 @@ export default function ProductsPage() {
     else if (sortBy === "newest") result.sort((a, b) => Number(b.isNew) - Number(a.isNew));
 
     setFiltered(result);
-  }, [selectedCategory, priceRange, sortBy, searchQuery]);
+  }, [allProducts, selectedCategory, priceRange, sortBy, searchQuery]);
 
   const handleReset = () => {
     setSelectedCategory("");
@@ -70,7 +94,9 @@ export default function ProductsPage() {
               ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Wigs`
               : "All Wigs"}
           </h1>
-          <p className="text-neutral-500">{filtered.length} products found</p>
+          <p className="text-neutral-500">
+            {isLoading ? "Loading products..." : `${filtered.length} products found`}
+          </p>
         </div>
 
         {/* Search + Sort bar */}
@@ -150,7 +176,21 @@ export default function ProductsPage() {
 
           {/* Product grid */}
           <div className="flex-1">
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-20 text-neutral-400">
+                Loading products...
+              </div>
+            ) : loadError ? (
+              <div className="text-center py-20">
+                <p className="text-4xl mb-4">⚠️</p>
+                <h3 className="text-lg font-semibold text-neutral-700 mb-2">
+                  Couldn't load products
+                </h3>
+                <p className="text-neutral-500">
+                  Check your connection and try refreshing the page.
+                </p>
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="text-center py-20">
                 <p className="text-4xl mb-4">🔍</p>
                 <h3 className="text-lg font-semibold text-neutral-700 mb-2">No products found</h3>

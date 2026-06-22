@@ -10,7 +10,7 @@ interface Message {
 const faqs = [
   {
     question: "How long does shipping take?",
-    answer: "Standard shipping takes 3–7 business days. Express shipping (1–2 days) is available at checkout. Free shipping on orders over $150.",
+    answer: "Standard shipping takes 3–7 business days. Express shipping (1–2 days) is available at checkout. Free shipping on orders over ₦150.",
   },
   {
     question: "Are your wigs made from real human hair?",
@@ -63,7 +63,7 @@ export default function SupportPage() {
       return "Our return policy is simple: 30 days from delivery, unworn wigs in original packaging qualify for a full refund. Just email returns@wigmart.com with your order number. 💛";
     }
     if (msg.includes("ship") || msg.includes("delivery")) {
-      return "We ship worldwide! 🌍 Standard delivery is 3–7 business days. Express is 1–2 days. Orders over $150 get free standard shipping automatically.";
+      return "We ship worldwide! 🌍 Standard delivery is 3–7 business days. Express is 1–2 days. Orders over ₦150 get free standard shipping automatically.";
     }
     if (msg.includes("care") || msg.includes("wash") || msg.includes("maintain")) {
       return "Great question! 🌟 Wash your wig every 10–15 wears with sulfate-free shampoo. Always air dry on a wig stand, and use a heat protectant before styling. Avoid sleeping in your wig to extend its life.";

@@ -115,7 +115,7 @@ export default function CartPage() {
                       </button>
                     </div>
                     <p className="font-bold text-neutral-900">
-                      ${(item.product.price * item.quantity).toFixed(2)}
+                      ₦{(item.product.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -139,17 +139,17 @@ export default function CartPage() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-neutral-600">
                   <span>Subtotal ({totalItems()} items)</span>
-                  <span>${totalPrice().toFixed(2)}</span>
+                  <span>₦{totalPrice().toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-neutral-600">
                   <span>Shipping</span>
                   <span className={shipping === 0 ? "text-emerald-600 font-medium" : ""}>
-                    {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
+                    {shipping === 0 ? "FREE" : `₦${shipping.toFixed(2)}`}
                   </span>
                 </div>
                 <div className="flex justify-between text-neutral-600">
                   <span>Tax (8%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>₦{tax.toFixed(2)}</span>
                 </div>
 
                 {shipping === 0 && (
@@ -160,7 +160,7 @@ export default function CartPage() {
 
                 {shipping > 0 && (
                   <div className="bg-brand-50 text-brand-700 text-xs rounded-xl px-3 py-2">
-                    Add ${(150 - totalPrice()).toFixed(2)} more for free shipping
+                    Add ₦{(150 - totalPrice()).toFixed(2)} more for free shipping
                   </div>
                 )}
               </div>
@@ -183,7 +183,7 @@ export default function CartPage() {
               <div className="border-t border-neutral-100 mt-5 pt-5">
                 <div className="flex justify-between font-bold text-lg text-neutral-900 mb-5">
                   <span>Total</span>
-                  <span>${orderTotal.toFixed(2)}</span>
+                  <span>₦{orderTotal.toFixed(2)}</span>
                 </div>
 
                 <Link

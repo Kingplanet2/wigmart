@@ -105,12 +105,12 @@ export default function ProductDetailPage() {
 
             {/* Price */}
             <div className="flex items-center gap-3">
-              <span className="text-4xl font-bold text-neutral-900">${product.price}</span>
+              <span className="text-4xl font-bold text-neutral-900">₦{product.price}</span>
               {product.originalPrice && (
                 <>
-                  <span className="text-xl text-neutral-400 line-through">${product.originalPrice}</span>
+                  <span className="text-xl text-neutral-400 line-through">₦{product.originalPrice}</span>
                   <Badge variant="sale">
-                    Save ${(product.originalPrice - product.price).toFixed(2)}
+                    Save ₦{(product.originalPrice - product.price).toFixed(2)}
                   </Badge>
                 </>
               )}
@@ -208,7 +208,7 @@ export default function ProductDetailPage() {
             {/* Trust badges */}
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-neutral-100">
               {[
-                { icon: Truck, label: "Free Shipping", sub: "Orders over $150" },
+                { icon: Truck, label: "Free Shipping", sub: "Orders over ₦150" },
                 { icon: RotateCcw, label: "Easy Returns", sub: "30-day policy" },
                 { icon: Shield, label: "Authentic", sub: "100% human hair" },
               ].map(({ icon: Icon, label, sub }) => (

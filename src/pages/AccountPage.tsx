@@ -19,9 +19,9 @@ export default function AccountPage() {
   };
 
   const orders = [
-    { id: "#WM38291", date: "March 2026", status: "Delivered", total: "$189.99", item: "Luxe Frontal Lace Wig" },
-    { id: "#WM29103", date: "February 2026", status: "Delivered", total: "$159.99", item: "Silky Bone Straight" },
-    { id: "#WM18472", date: "January 2026", status: "Delivered", total: "$219.99", item: "Goddess Curly Lace Front" },
+    { id: "#WM38291", date: "March 2026", status: "Delivered", total: "₦189.99", item: "Luxe Frontal Lace Wig" },
+    { id: "#WM29103", date: "February 2026", status: "Delivered", total: "₦159.99", item: "Silky Bone Straight" },
+    { id: "#WM18472", date: "January 2026", status: "Delivered", total: "₦219.99", item: "Goddess Curly Lace Front" },
   ];
 
   return (

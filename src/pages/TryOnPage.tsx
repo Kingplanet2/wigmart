@@ -4,25 +4,25 @@ import Layout from "../components/layout/Layout";
 import { products } from "../data/products";
 import { Link } from "react-router-dom";
 
-const LICENSE_KEY = "ef5078ccdd6d56f78cdcaeb56f26b29091cf1c33b0112212607d4b984618586a594e13b74175efe3";
+const LICENSE_KEY = import.meta.env.VITE_DEEPAR_LICENSE_KEY;
 
 const wigEffects = [
   {
     name: "Bone Straight",
     url: "https://cdn.jsdelivr.net/gh/DeepARSDK/quickstart-web-js@master/effects/aviators",
-    price: "$159.99",
+    price: "₦159.99",
     productId: "2",
   },
   {
     name: "Goddess Curly",
     url: "https://cdn.jsdelivr.net/gh/DeepARSDK/quickstart-web-js@master/effects/beard",
-    price: "$219.99",
+    price: "₦219.99",
     productId: "3",
   },
   {
     name: "Frontal Lace",
     url: "https://cdn.jsdelivr.net/gh/DeepARSDK/quickstart-web-js@master/effects/flower_face",
-    price: "$189.99",
+    price: "₦189.99",
     productId: "1",
   },
 ];
@@ -37,6 +37,14 @@ export default function TryOnPage() {
   const [switching, setSwitching] = useState(false);
 
   useEffect(() => {
+    if (!LICENSE_KEY) {
+      setError(
+        "AR Try-On is not configured. Missing DeepAR license key — check that VITE_DEEPAR_LICENSE_KEY is set in your environment."
+      );
+      setIsLoading(false);
+      return;
+    }
+
     const loadDeepAR = async () => {
       try {
         // Load DeepAR script
@@ -64,8 +72,8 @@ export default function TryOnPage() {
             deepARRef.current = deepAR;
           } catch {
             setError(
-                "Camera blocked. On iPhone: go to Settings → Safari → Camera → Allow. Then refresh this page."
-                 );
+              "Camera blocked. On iPhone: go to Settings → Safari → Camera → Allow. Then refresh this page."
+            );
             setIsLoading(false);
           }
         };
@@ -264,7 +272,7 @@ export default function TryOnPage() {
                   <p className="text-white text-xs font-semibold line-clamp-1">
                     {product.name}
                   </p>
-                  <p className="text-brand-300 text-xs">${product.price}</p>
+                  <p className="text-brand-300 text-xs">₦{product.price}</p>
                 </div>
               </Link>
             ))}
